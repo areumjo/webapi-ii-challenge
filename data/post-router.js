@@ -51,7 +51,7 @@ router.get('/:id/comments', (req, res) => {
     const { id } = req.params;
     Posts.findPostComments(id)
     .then(post => {
-        console.log('post coments: ', post);
+        // console.log('post coments: ', post);
         if (post) {
             res.status(200).json(post);
         } else {
@@ -65,8 +65,51 @@ router.get('/:id/comments', (req, res) => {
             error: "The posts information could not be retrieved." 
         })
     })
-
 })
 
+//post
+router.post('/', (req, res) => {
+    console.log('req.body: ', req.body);
+    // const { title, contents } = req.body;
+    if (!req.body.title || !req.body.contents) {
+        res.status(400).json({
+            errorMessage: "Please provide title and contents for the post."
+        })
+    }
+    Posts.insert(req.body)
+        .then(post => {
+            res.status(201).json(post);
+        })
+        .catch(err => {
+            res.status(500).json({
+                error: "There was an error while saving the post to the database",
+            });
+        });
+})
+
+// added
+// {
+// 	"text": "NEWNEWNEW", // required
+// 	"post_id": "1" // required
+// }
+router.post('/:id/comments', (req, res) => {
+    console.log(req.body)
+    Posts.insertComment(req.body)
+        .then(post => {
+            console.log('post: ', post);
+            if (post) {
+                res.status(201).json(post);
+            } else {
+                res.status(404).json({
+                    message: "The post with the specified ID does not exist."
+                })
+            }   
+        })
+        .catch(err => {
+            res.status(500).json({
+                message: "The post with the specified ID does not exist." 
+            })
+        })
+});
 
 module.exports = router;
